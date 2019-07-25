@@ -49,7 +49,7 @@ class DjinniConan(ConanFile):
                 cmake.definitions["CMAKE_OSX_ARCHITECTURES"] = archs
 
             if self.settings.arch == "x86" or self.settings.arch == "x86_64":
-                cmake.definitions["IOS_PLATFORM"] = "SIMULATOR"
+                cmake.definitions["IOS_PLATFORM"] = "SIMULATOR64"
             else:
                 cmake.definitions["IOS_PLATFORM"] = "OS"
 
