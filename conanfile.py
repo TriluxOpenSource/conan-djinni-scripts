@@ -23,10 +23,14 @@ class DjinniConan(ConanFile):
         variants = []
 
         if self.settings.os == "Android":
-            cmake.definitions["CMAKE_SYSTEM_VERSION"] = self.settings.os.api_level
-            cmake.definitions["CMAKE_ANDROID_NDK"] = os.environ["ANDROID_NDK_PATH"]
-            cmake.definitions["CMAKE_ANDROID_NDK_TOOLCHAIN_VERSION"] = self.settings.compiler
-            cmake.definitions["CMAKE_ANDROID_STL_TYPE"] = self.options.android_stl_type
+            android_toolchain = os.environ["ANDROID_NDK_PATH"] + "/build/cmake/android.toolchain.cmake"
+            cmake.definitions["CMAKE_SYSTEM_NAME"] = "Android"
+            cmake.definitions["CMAKE_TOOLCHAIN_FILE"] = android_toolchain
+            cmake.definitions["ANDROID_NDK"] = os.environ["ANDROID_NDK_PATH"]
+            cmake.definitions["ANDROID_ABI"] = tools.to_android_abi(self.settings.arch)
+            cmake.definitions["ANDROID_STL"] = self.options.android_stl_type
+            cmake.definitions["ANDROID_NATIVE_API_LEVEL"] = self.settings.os.api_level
+            cmake.definitions["ANDROID_TOOLCHAIN"] = "clang"
             cmake.definitions["DJINNI_WITH_JNI"] = "ON"
 
         if self.settings.os == "iOS":
@@ -48,7 +52,9 @@ class DjinniConan(ConanFile):
                         archs += ";" + tools.to_apple_arch(variants[i])
                 cmake.definitions["CMAKE_OSX_ARCHITECTURES"] = archs
 
-            if self.settings.arch == "x86" or self.settings.arch == "x86_64":
+            if self.settings.arch == "x86":
+                cmake.definitions["IOS_PLATFORM"] = "SIMULATOR"
+            elif self.settings.arch == "x86_64":
                 cmake.definitions["IOS_PLATFORM"] = "SIMULATOR64"
             else:
                 cmake.definitions["IOS_PLATFORM"] = "OS"
