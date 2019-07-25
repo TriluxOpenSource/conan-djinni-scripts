@@ -1,0 +1,105 @@
+
+# C++ project
+language: cpp
+
+# Use Ubuntu 16.04 (Xenial)
+dist: xenial
+
+# Only build master and tags
+if: branch = master OR tag IS present
+
+git:
+    submodules: true
+
+env:
+  global:
+    - BINTRAY_USER=manromen
+    # BINTRAY_KEY
+    - secure: "wE52pK3O6WvG4Gsmd3q8i3dcANY/B7BEFIUDa4CtqQfyoFaLkZVi/WscDAwmCxw3XUNbxrwa/gFlEjsOtr4Fob4NPN0KaZKl3ilsVp49pYEzLGoDNYipr4EwuUbIQaBKkuTlm96W93LLT7Lw6TY6XeBGHvKAdYClqTGiNWBt3cxUf1fYdwvLAvsbzVG84f9zokttzK9EwEa+/k2yq7OCuDIIhabPQtCJIT9+8Epc4yxjJM35Sq404t3KGoiYmiG8x123jo5qsQqwQnLK+HYjhUpomHnTPQBci7J2WOP6idzkNRANJlH8C443lkuAR1bge7ETxAkaWp3yJ8h1RjJwzeK028M8+u1dxD/ji/yj++NDsrFyiOJZDdjqz/q3jZRw/0zTGR4YRKQktQjfebxga/Wa8lZ7NTu0nVuqSYVZ2KZkwdrukww2lEAvxXYoOO9FbESe2Qf+XmnWA63etw6jf7c1Qg4JUT4kSgZuiRjVpXpxqUw930cvESxzk++bqNBLQLn4SIL3n8BUZWF3XPNk2eZoUHR3cDUv0puvdCIHQpvyYhp27ncNaq3jrsYBjYko0N0MWJv3WXPpiPM+pecm9BDs3hfAQgqTv36EANLb2eByPQBHUXimhpG0Yq1cwk/MZGBFfPxFqR3UiW8HDxuEncbeX1zBhLS8mOzMkIlVRQ4="
+    - CONAN_REPOSITORY=https://api.bintray.com/conan/manromen/rgpaul
+    - CONAN_REPOSITORY_NAME=rgpaul
+    - CONAN_USER=rgpaul
+    - CONAN_CHANNEL=stable
+    - LIBRARY_VERSION=470
+    - CONAN_PACKAGE_NAME=djinni
+
+### before installing deps
+before_install:
+  # Download Android NDK from Google
+  - if [[ "$TRAVIS_OS_NAME" == "linux" && "$TARGET_PLATFORM" == "android" ]]; then
+      curl -sSOL "https://dl.google.com/android/repository/android-ndk-${TRAVIS_ANDROID_NDK_VERSION}-linux-x86_64.zip";
+      unzip -q -o android-ndk-${TRAVIS_ANDROID_NDK_VERSION}-linux-x86_64.zip;
+    fi
+
+### install deps
+install:
+
+    # Install conan (linux)
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+      pip install conan --user;
+    fi
+
+  # Install conan (macos)
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      pip3 install conan;
+    fi
+
+  # Add conan repository and apply conan config
+  - conan remote add ${CONAN_REPOSITORY_NAME} ${CONAN_REPOSITORY}
+  - conan config install ${TRAVIS_BUILD_DIR}/.travis/conan/config.zip
+
+  # login to conan
+  - conan user -p "$BINTRAY_KEY" -r ${CONAN_REPOSITORY_NAME} ${BINTRAY_USER}
+
+### build script
+script:
+  # show OS/compiler version
+  - uname -a
+
+  # make sure CXX is correctly set
+  - if [[ "${COMPILER}" != "" ]]; then export CXX=${COMPILER}; fi
+
+  # iOS Builds
+  - if [ "$TARGET_PLATFORM" == "ios" ]; then
+      export IOS_SDK_VERSION=$(xcodebuild -showsdks | grep iphoneos | awk '{print $4}' | sed 's/[^0-9,\.]*//g');
+      echo "iOS SDK ${IOS_SDK_VERSION}";
+      conan create . ${CONAN_PACKAGE_NAME}/${LIBRARY_VERSION}@${CONAN_USER}/${CONAN_CHANNEL} -s os=iOS -s os.version=${IOS_SDK_VERSION} -s arch=${TARGET_ARCH} -s build_type=${TARGET_BUILD_TYPE} -o shared=False;
+    fi
+
+deploy:
+  provider: script
+  script: bash .travis/conan-deploy.sh
+  on:
+    tags: true
+    all_branches: true
+
+### build matrix
+matrix:
+  include:
+      
+    # iOS - Release
+    - os: osx
+      osx_image: xcode10.2
+      compiler: clang
+      env:
+        - TARGET_PLATFORM=ios
+        - TARGET_ARCH=armv8
+        - TARGET_BUILD_TYPE=Release
+
+    # iOS - Debug
+    - os: osx
+      osx_image: xcode10.2
+      compiler: clang
+      env:
+        - TARGET_PLATFORM=ios
+        - TARGET_ARCH=armv8
+        - TARGET_BUILD_TYPE=Debug
+
+    # iOS - Simulator
+    - os: osx
+      osx_image: xcode10.2
+      compiler: clang
+      env:
+        - TARGET_PLATFORM=ios
+        - TARGET_ARCH=x86_64
+        - TARGET_BUILD_TYPE=Debug

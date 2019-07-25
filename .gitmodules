@@ -1,0 +1,6 @@
+[submodule "cmake-modules"]
+	path = cmake-modules
+	url = https://github.com/Manromen/cmake-modules.git
+[submodule "djinni"]
+	path = djinni
+	url = https://github.com/Manromen/djinni.git
