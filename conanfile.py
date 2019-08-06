@@ -1,4 +1,4 @@
-from conans import AutoToolsBuildEnvironment, ConanFile, CMake, tools
+from conans import ConanFile, CMake, tools
 from shutil import copy2
 import os
 
@@ -103,9 +103,8 @@ class DjinniConan(ConanFile):
                     copy2(os.path.join(support_lib_jni_folder,f), os.path.join(include_jni_folder,f))
 
         # build the djinni fat file
-        autotools = AutoToolsBuildEnvironment(self)
-        autotools.make(args=["djinni_jar"])
-        copy2("src/target/scala-2.11/src-assembly-0.1-SNAPSHOT.jar", "djinni.jar")
+        self.run("cd djinni; make djinni_jar; cd ..")
+        copy2("djinni/src/target/scala-2.11/src-assembly-0.1-SNAPSHOT.jar", "djinni.jar")
 
     def package(self):
         self.copy("*", dst="include", src='include')
