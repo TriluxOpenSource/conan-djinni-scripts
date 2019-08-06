@@ -84,7 +84,7 @@ deploy:
     tags: true
 
 ### build matrix
-matrix:
+jobs:
   include:
       
     # iOS - Release
