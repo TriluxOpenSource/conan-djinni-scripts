@@ -79,7 +79,7 @@ script:
 
 deploy:
   provider: script
-  script: bash .travis/conan-deploy.sh
+  script: bash .travis/provider/conan-deploy.sh
   on:
     tags: true
 

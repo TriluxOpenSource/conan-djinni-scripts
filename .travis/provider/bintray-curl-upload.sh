@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+curl -T "${BINTRAY_FILE}" -u${BINTRAY_USER}:${BINTRAY_KEY} ${BINTRAY_URL}/${BINTRAY_VERSION}/${BINTRAY_TARGET_FILE}
