@@ -1,4 +1,4 @@
-from conans import ConanFile, CMake, tools
+from conans import AutoToolsBuildEnvironment, ConanFile, CMake, tools
 from shutil import copy2
 import os
 
@@ -102,6 +102,11 @@ class DjinniConan(ConanFile):
                 if f.endswith(".hpp") and not os.path.islink(os.path.join(support_lib_jni_folder,f)):
                     copy2(os.path.join(support_lib_jni_folder,f), os.path.join(include_jni_folder,f))
 
+        # build the djinni fat file
+        autotools = AutoToolsBuildEnvironment(self)
+        autotools.make(args=["djinni_jar"])
+        copy2("src/target/scala-2.11/src-assembly-0.1-SNAPSHOT.jar", "djinni.jar")
+
     def package(self):
         self.copy("*", dst="include", src='include')
         self.copy("*.lib", dst="lib", src='', keep_path=False)
@@ -109,6 +114,7 @@ class DjinniConan(ConanFile):
         self.copy("*.so", dst="lib", src='', keep_path=False)
         self.copy("*.dylib", dst="lib", src='', keep_path=False)
         self.copy("*.a", dst="lib", src='', keep_path=False)
+        self.copy("djinni.jar", dst="bin", src='', keep_path=False)
         
     def package_info(self):
         self.cpp_info.libs = tools.collect_libs(self)

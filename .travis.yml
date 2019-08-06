@@ -2,9 +2,6 @@
 # C++ project
 language: cpp
 
-# Use Ubuntu 16.04 (Xenial)
-dist: xenial
-
 # Only build master and tags
 if: branch = master OR tag IS present
 
@@ -52,6 +49,12 @@ install:
   # login to conan
   - conan user -p "$BINTRAY_KEY" -r ${CONAN_REPOSITORY_NAME} ${BINTRAY_USER}
 
+  # install java and sbt via sdkman.io
+  - curl -s "https://get.sdkman.io" | bash
+  - source "${HOME}/.sdkman/bin/sdkman-init.sh"
+  - sdk install java
+  - sdk install sbt
+
 ### build script
 script:
   # show OS/compiler version
@@ -78,7 +81,6 @@ deploy:
   script: bash .travis/conan-deploy.sh
   on:
     tags: true
-    all_branches: true
 
 ### build matrix
 matrix:
@@ -113,6 +115,7 @@ matrix:
 
     ### Android NDK r20 - arm64-v8a ###
     - os: linux
+      dist: xenial # Ubuntu 16.04 (Xenial)
       env:
         - TARGET_PLATFORM=android
         - TRAVIS_ANDROID_NDK_VERSION=r20
@@ -129,6 +132,7 @@ matrix:
 
     ### Android NDK r20 - armeabi-v7a ###
     - os: linux
+      dist: xenial # Ubuntu 16.04 (Xenial)
       env:
         - TARGET_PLATFORM=android
         - TRAVIS_ANDROID_NDK_VERSION=r20
@@ -145,6 +149,7 @@ matrix:
 
     ### Android NDK r20 - x86 ###
     - os: linux
+      dist: xenial # Ubuntu 16.04 (Xenial)
       env:
         - TARGET_PLATFORM=android
         - TRAVIS_ANDROID_NDK_VERSION=r20
@@ -161,6 +166,7 @@ matrix:
 
     ### Android NDK r20 - x86_64 ###
     - os: linux
+      dist: xenial # Ubuntu 16.04 (Xenial)
       env:
         - TARGET_PLATFORM=android
         - TRAVIS_ANDROID_NDK_VERSION=r20
@@ -177,6 +183,7 @@ matrix:
 
     ### Android NDK r19c - arm64-v8a ###
     - os: linux
+      dist: xenial # Ubuntu 16.04 (Xenial)
       env:
         - TARGET_PLATFORM=android
         - TRAVIS_ANDROID_NDK_VERSION=r19c
@@ -193,6 +200,7 @@ matrix:
 
     ### Android NDK r19c - armeabi-v7a ###
     - os: linux
+      dist: xenial # Ubuntu 16.04 (Xenial)
       env:
         - TARGET_PLATFORM=android
         - TRAVIS_ANDROID_NDK_VERSION=r19c
@@ -209,6 +217,7 @@ matrix:
 
     ### Android NDK r19c - x86 ###
     - os: linux
+      dist: xenial # Ubuntu 16.04 (Xenial)
       env:
         - TARGET_PLATFORM=android
         - TRAVIS_ANDROID_NDK_VERSION=r19c
@@ -225,6 +234,7 @@ matrix:
 
     ### Android NDK r19c - x86_64 ###
     - os: linux
+      dist: xenial # Ubuntu 16.04 (Xenial)
       env:
         - TARGET_PLATFORM=android
         - TRAVIS_ANDROID_NDK_VERSION=r19c
@@ -241,6 +251,7 @@ matrix:
 
     ### Android NDK r16b - arm64-v8a ###
     - os: linux
+      dist: xenial # Ubuntu 16.04 (Xenial)
       env:
         - TARGET_PLATFORM=android
         - TRAVIS_ANDROID_NDK_VERSION=r16b
@@ -257,6 +268,7 @@ matrix:
 
     ### Android NDK r16b - armeabi-v7a ###
     - os: linux
+      dist: xenial # Ubuntu 16.04 (Xenial)
       env:
         - TARGET_PLATFORM=android
         - TRAVIS_ANDROID_NDK_VERSION=r16b
@@ -273,6 +285,7 @@ matrix:
 
     ### Android NDK r16b - x86 ###
     - os: linux
+      dist: xenial # Ubuntu 16.04 (Xenial)
       env:
         - TARGET_PLATFORM=android
         - TRAVIS_ANDROID_NDK_VERSION=r16b
@@ -289,6 +302,7 @@ matrix:
 
     ### Android NDK r16b - x86_64 ###
     - os: linux
+      dist: xenial # Ubuntu 16.04 (Xenial)
       env:
         - TARGET_PLATFORM=android
         - TRAVIS_ANDROID_NDK_VERSION=r16b
@@ -305,6 +319,7 @@ matrix:
 
     ### Android NDK r16b - mips ###
     - os: linux
+      dist: xenial # Ubuntu 16.04 (Xenial)
       env:
         - TARGET_PLATFORM=android
         - TRAVIS_ANDROID_NDK_VERSION=r16b
@@ -321,6 +336,7 @@ matrix:
 
     ### Android NDK r16b - mips64 ###
     - os: linux
+      dist: xenial # Ubuntu 16.04 (Xenial)
       env:
         - TARGET_PLATFORM=android
         - TRAVIS_ANDROID_NDK_VERSION=r16b
