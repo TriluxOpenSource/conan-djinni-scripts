@@ -13,7 +13,7 @@ class DjinniConan(ConanFile):
     description = "A tool for generating cross-language type declarations and interface bindings."
     url = "https://github.com/Manromen/conan-djinni-scripts"
     license = "Apache-2.0"
-    exports_sources = "cmake-modules/*", "djinni/*"
+    exports_sources = "cmake-modules/*", "djinni/*", "djinni.jar"
 
     # compile using cmake
     def build(self):
@@ -101,10 +101,6 @@ class DjinniConan(ConanFile):
             for f in os.listdir(support_lib_jni_folder):
                 if f.endswith(".hpp") and not os.path.islink(os.path.join(support_lib_jni_folder,f)):
                     copy2(os.path.join(support_lib_jni_folder,f), os.path.join(include_jni_folder,f))
-
-        # build the djinni fat file
-        self.run("cd djinni; make djinni_jar; cd ..")
-        copy2("djinni/src/target/scala-2.11/src-assembly-0.1-SNAPSHOT.jar", "djinni.jar")
 
     def package(self):
         self.copy("*", dst="include", src='include')

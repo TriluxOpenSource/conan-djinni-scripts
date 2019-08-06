@@ -10,15 +10,29 @@ git:
 
 env:
   global:
+    # Bintray
     - BINTRAY_USER=manromen
     # BINTRAY_KEY
     - secure: "wE52pK3O6WvG4Gsmd3q8i3dcANY/B7BEFIUDa4CtqQfyoFaLkZVi/WscDAwmCxw3XUNbxrwa/gFlEjsOtr4Fob4NPN0KaZKl3ilsVp49pYEzLGoDNYipr4EwuUbIQaBKkuTlm96W93LLT7Lw6TY6XeBGHvKAdYClqTGiNWBt3cxUf1fYdwvLAvsbzVG84f9zokttzK9EwEa+/k2yq7OCuDIIhabPQtCJIT9+8Epc4yxjJM35Sq404t3KGoiYmiG8x123jo5qsQqwQnLK+HYjhUpomHnTPQBci7J2WOP6idzkNRANJlH8C443lkuAR1bge7ETxAkaWp3yJ8h1RjJwzeK028M8+u1dxD/ji/yj++NDsrFyiOJZDdjqz/q3jZRw/0zTGR4YRKQktQjfebxga/Wa8lZ7NTu0nVuqSYVZ2KZkwdrukww2lEAvxXYoOO9FbESe2Qf+XmnWA63etw6jf7c1Qg4JUT4kSgZuiRjVpXpxqUw930cvESxzk++bqNBLQLn4SIL3n8BUZWF3XPNk2eZoUHR3cDUv0puvdCIHQpvyYhp27ncNaq3jrsYBjYko0N0MWJv3WXPpiPM+pecm9BDs3hfAQgqTv36EANLb2eByPQBHUXimhpG0Yq1cwk/MZGBFfPxFqR3UiW8HDxuEncbeX1zBhLS8mOzMkIlVRQ4="
+    
+    # Conan
     - CONAN_REPOSITORY=https://api.bintray.com/conan/manromen/rgpaul
     - CONAN_REPOSITORY_NAME=rgpaul
     - CONAN_USER=rgpaul
     - CONAN_CHANNEL=stable
     - CONAN_LIBRARY_VERSION=470
     - CONAN_PACKAGE_NAME=djinni
+
+    # Maven
+    - TRAVIS_MAVEN_SERVER_ID=rgpaul-mvn
+    - TRAVIS_MAVEN_USER=manromen
+    - TRAVIS_MAVEN_PWD=$BINTRAY_KEY
+    - TRAVIS_MAVEN_URL=https://api.bintray.com/maven/manromen/rgpaul-mvn/djinni
+    - TRAVIS_MAVEN_GROUP_ID=com.rgpaul
+    - TRAVIS_MAVEN_ARTIFACT_ID=djinni
+    - TRAVIS_MAVEN_VERSION=${CONAN_LIBRARY_VERSION}-${TRAVIS_BUILD_NUMBER}
+    - TRAVIS_MAVEN_FILE=djinni.jar
+    - TRAVIS_MAVEN_ARTIFACT="com.rgpaul:djinni:${TRAVIS_MAVEN_VERSION}"
 
 ### before installing deps
 before_install:
@@ -49,12 +63,18 @@ install:
   # login to conan
   - conan user -p "$BINTRAY_KEY" -r ${CONAN_REPOSITORY_NAME} ${BINTRAY_USER}
 
-  # install java, sbt and scala via sdkman.io
-  - curl -s "https://get.sdkman.io" | bash
-  - source "${HOME}/.sdkman/bin/sdkman-init.sh"
-  - sdk install java
-  - sdk install sbt
-  - sdk install scala
+  # install java, sbt and maven via sdkman.io
+  - if [ "$TARGET_PLATFORM" == "djinni_jar" ]; then
+      curl -s "https://get.sdkman.io" | bash;
+      source "${HOME}/.sdkman/bin/sdkman-init.sh";
+      sdk install java;
+      sdk install sbt;
+      sdk install maven;
+    fi
+
+  - if [ "$TARGET_PLATFORM" != "djinni_jar" ]; then
+      bash .travis/provider/maven-download-file.sh;
+    fi
 
 ### build script
 script:
@@ -77,18 +97,47 @@ script:
       conan create . ${CONAN_PACKAGE_NAME}/${CONAN_LIBRARY_VERSION}@${CONAN_USER}/${CONAN_CHANNEL} -s os=iOS -s os.version=${IOS_SDK_VERSION} -s arch=${TARGET_ARCH} -s build_type=${TARGET_BUILD_TYPE} -o shared=False;
     fi
 
+  # build the djinni fat file
+  - if [ "$TARGET_PLATFORM" == "djinni_jar" ]; then
+      cd djinni;
+      make djinni_jar;
+      cp src/target/scala-2.11/src-assembly-0.1-SNAPSHOT.jar ${TRAVIS_BUILD_DIR}/djinni.jar;
+      cd ${TRAVIS_BUILD_DIR};
+    fi
+
+after_success:
+  - if [ "$TARGET_PLATFORM" == "djinni_jar" ]; then
+      bash .travis/provider/maven-upload-file.sh;
+    fi
+
 deploy:
   provider: script
   script: bash .travis/provider/conan-deploy.sh
   on:
     tags: true
+    condition: $TARGET_PLATFORM != djinni_jar
+
+stages:
+  - jar
+  - library
 
 ### build matrix
-jobs:
+matrix:
   include:
-      
+    
+    # djinni_jar
+    - stage: jar
+      os: linux
+      dist: xenial # Ubuntu 16.04 (Xenial)
+      env:
+        - TARGET_PLATFORM=djinni_jar
+      apt:
+        sources: ['ubuntu-toolchain-r-test']
+        packages: ['g++-5' ]
+
     # iOS - Release
-    - os: osx
+    - stage: library
+      os: osx
       osx_image: xcode10.2
       compiler: clang
       env:
@@ -97,7 +146,8 @@ jobs:
         - TARGET_BUILD_TYPE=Release
 
     # iOS - Debug
-    - os: osx
+    - stage: library
+      os: osx
       osx_image: xcode10.2
       compiler: clang
       env:
@@ -106,7 +156,8 @@ jobs:
         - TARGET_BUILD_TYPE=Debug
 
     # iOS - Simulator
-    - os: osx
+    - stage: library
+      os: osx
       osx_image: xcode10.2
       compiler: clang
       env:
@@ -115,7 +166,8 @@ jobs:
         - TARGET_BUILD_TYPE=Debug
 
     ### Android NDK r20 - arm64-v8a ###
-    - os: linux
+    - stage: library
+      os: linux
       dist: xenial # Ubuntu 16.04 (Xenial)
       env:
         - TARGET_PLATFORM=android
@@ -132,7 +184,8 @@ jobs:
         packages: ['g++-5' ]
 
     ### Android NDK r20 - armeabi-v7a ###
-    - os: linux
+    - stage: library
+      os: linux
       dist: xenial # Ubuntu 16.04 (Xenial)
       env:
         - TARGET_PLATFORM=android
@@ -149,7 +202,8 @@ jobs:
         packages: ['g++-5' ]
 
     ### Android NDK r20 - x86 ###
-    - os: linux
+    - stage: library
+      os: linux
       dist: xenial # Ubuntu 16.04 (Xenial)
       env:
         - TARGET_PLATFORM=android
@@ -166,7 +220,8 @@ jobs:
         packages: ['g++-5' ]
 
     ### Android NDK r20 - x86_64 ###
-    - os: linux
+    - stage: library
+      os: linux
       dist: xenial # Ubuntu 16.04 (Xenial)
       env:
         - TARGET_PLATFORM=android
@@ -183,7 +238,8 @@ jobs:
         packages: ['g++-5' ]
 
     ### Android NDK r19c - arm64-v8a ###
-    - os: linux
+    - stage: library
+      os: linux
       dist: xenial # Ubuntu 16.04 (Xenial)
       env:
         - TARGET_PLATFORM=android
@@ -200,7 +256,8 @@ jobs:
         packages: ['g++-5' ]
 
     ### Android NDK r19c - armeabi-v7a ###
-    - os: linux
+    - stage: library
+      os: linux
       dist: xenial # Ubuntu 16.04 (Xenial)
       env:
         - TARGET_PLATFORM=android
@@ -217,7 +274,8 @@ jobs:
         packages: ['g++-5' ]
 
     ### Android NDK r19c - x86 ###
-    - os: linux
+    - stage: library
+      os: linux
       dist: xenial # Ubuntu 16.04 (Xenial)
       env:
         - TARGET_PLATFORM=android
@@ -234,7 +292,8 @@ jobs:
         packages: ['g++-5' ]
 
     ### Android NDK r19c - x86_64 ###
-    - os: linux
+    - stage: library
+      os: linux
       dist: xenial # Ubuntu 16.04 (Xenial)
       env:
         - TARGET_PLATFORM=android
@@ -251,7 +310,8 @@ jobs:
         packages: ['g++-5' ]
 
     ### Android NDK r16b - arm64-v8a ###
-    - os: linux
+    - stage: library
+      os: linux
       dist: xenial # Ubuntu 16.04 (Xenial)
       env:
         - TARGET_PLATFORM=android
@@ -268,7 +328,8 @@ jobs:
         packages: ['g++-5' ]
 
     ### Android NDK r16b - armeabi-v7a ###
-    - os: linux
+    - stage: library
+      os: linux
       dist: xenial # Ubuntu 16.04 (Xenial)
       env:
         - TARGET_PLATFORM=android
@@ -285,7 +346,8 @@ jobs:
         packages: ['g++-5' ]
 
     ### Android NDK r16b - x86 ###
-    - os: linux
+    - stage: library
+      os: linux
       dist: xenial # Ubuntu 16.04 (Xenial)
       env:
         - TARGET_PLATFORM=android
@@ -302,7 +364,8 @@ jobs:
         packages: ['g++-5' ]
 
     ### Android NDK r16b - x86_64 ###
-    - os: linux
+    - stage: library
+      os: linux
       dist: xenial # Ubuntu 16.04 (Xenial)
       env:
         - TARGET_PLATFORM=android
@@ -319,7 +382,8 @@ jobs:
         packages: ['g++-5' ]
 
     ### Android NDK r16b - mips ###
-    - os: linux
+    - stage: library
+      os: linux
       dist: xenial # Ubuntu 16.04 (Xenial)
       env:
         - TARGET_PLATFORM=android
@@ -336,7 +400,8 @@ jobs:
         packages: ['g++-5' ]
 
     ### Android NDK r16b - mips64 ###
-    - os: linux
+    - stage: library
+      os: linux
       dist: xenial # Ubuntu 16.04 (Xenial)
       env:
         - TARGET_PLATFORM=android
