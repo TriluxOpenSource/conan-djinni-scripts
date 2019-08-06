@@ -49,11 +49,12 @@ install:
   # login to conan
   - conan user -p "$BINTRAY_KEY" -r ${CONAN_REPOSITORY_NAME} ${BINTRAY_USER}
 
-  # install java and sbt via sdkman.io
+  # install java, sbt and scala via sdkman.io
   - curl -s "https://get.sdkman.io" | bash
   - source "${HOME}/.sdkman/bin/sdkman-init.sh"
   - sdk install java
   - sdk install sbt
+  - sdk install scala
 
 ### build script
 script:
