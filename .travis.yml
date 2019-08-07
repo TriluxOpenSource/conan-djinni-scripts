@@ -29,9 +29,10 @@ env:
     # TRAVIS_MAVEN_PWD
     - secure: "HD5PYsdDngyz5iDeqcvtCFq6mbss4LCrjitj2IUUCPo/UlFXfoD1/4JEF55NZQBRBKS4G5aFe5NpggLGsExRyvPBLLZLy+xGo7Ij1EyK7WQ3FjjF/caHgS1ekvOGhQzaZ14g59ij2f4UWvjWuC6qpdJs17YnsMYgD2X0s//x7sdIkeIAUhajPzPw5U9KaJkBgiad4JbvlJM3S3pp2rEbGc/gkkIsohMeyoaS2kWb+tAz7NMNoLGX8LRydX8D3W+PJLdIrbULmR615HW2+asOWxwNWa/vXDvIxMfV6BbgiIbvtoyPksTmcv/p08JSMxMuh3DJhqz/AIvPHCTu6I8jb8krGCozQr1uWOJeC7P0XD55ptW9A3a6hPatQmRxlEdebZu/YPyLi0FVawi8rL8Uq77KiE3DK5H9S0rm2a4L6EUlbpbgCfJF/Un6maPdqX9RzFUGvWWmBvUmUMazxjjKLuz2eYtdyWIYFoCUvAuGltj7GHaxuBBHrrjmCd58NMal8UL2bPs5x4LvVWnsuPDr7+1CWKVoRncN2HdPgH1Q5A+zra/+DEUIRedhrYXa2qcUWxlmvfwgGj/OMxSantFs2sNH5boC+3suj/5SCbSUS2zAHXa8tQRfvHZhHRNOTcXKlr9/9TmT2RYqFkG419MH3hO+NdCdCUra8z26EdP7/ls="
     - TRAVIS_MAVEN_URL=https://api.bintray.com/maven/manromen/rgpaul-mvn/djinni
+    - TRAVIS_MAVEN_PUBLISH_URL=https://api.bintray.com/maven/manromen/rgpaul-mvn/djinni/;publish=1
     - TRAVIS_MAVEN_GROUP_ID=com.rgpaul
     - TRAVIS_MAVEN_ARTIFACT_ID=djinni
-    - TRAVIS_MAVEN_VERSION=${CONAN_LIBRARY_VERSION}-${TRAVIS_BUILD_NUMBER}
+    - TRAVIS_MAVEN_VERSION=${CONAN_LIBRARY_VERSION}
     - TRAVIS_MAVEN_FILE=djinni.jar
     - TRAVIS_MAVEN_ARTIFACT="com.rgpaul:djinni:${TRAVIS_MAVEN_VERSION}"
 
@@ -73,6 +74,7 @@ install:
       sdk install maven;
     fi
 
+  # if we won't build the djinni.jar file, we will download it from maven
   - if [ "$TARGET_PLATFORM" != "djinni_jar" ]; then
       bash .travis/provider/maven-download-file.sh;
     fi
@@ -107,7 +109,9 @@ script:
     fi
 
 after_success:
+  # after successfully building djinni_jar, we will upload it to maven
   - if [ "$TARGET_PLATFORM" == "djinni_jar" ]; then
+      export TRAVIS_MAVEN_URL=$TRAVIS_MAVEN_PUBLISH_URL;
       bash .travis/provider/maven-upload-file.sh;
     fi
 
