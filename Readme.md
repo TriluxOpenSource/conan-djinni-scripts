@@ -1,9 +1,10 @@
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+![Android status](https://github.com/rgpaul/conan-curl-scripts/workflows/Android/badge.svg)
+![iOS status](https://github.com/rgpaul/conan-curl-scripts/workflows/iOS/badge.svg)
+
 # Conan djinni
 
-[![Build Status](https://travis-ci.com/Manromen/conan-djinni-scripts.svg?branch=master)](https://travis-ci.com/Manromen/conan-djinni-scripts)
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-
-This repository contains the conan receipe that is used to build the djinni packages at [rgpaul bintray](https://bintray.com/manromen/rgpaul).
+This repository contains a conan receipe that can be used to build djinni packages.
 
 For Infos about djinni please visit [Github](https://github.com/dropbox/djinni).  
 The library is licensed under the [Apache License](https://github.com/dropbox/djinni/blob/master/LICENSE).  
