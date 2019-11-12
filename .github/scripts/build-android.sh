@@ -2,7 +2,7 @@
 # ----------------------------------------------------------------------------------------------------------------------
 # The MIT License (MIT)
 #
-# Copyright (c) 2019 Ralph-Gordon Paul. All rights reserved.
+# Copyright (c) 2018-2019 Ralph-Gordon Paul. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
 # documentation files (the "Software"), to deal in the Software without restriction, including without limitation the 
@@ -20,20 +20,25 @@
 
 set -e
 
+source ~/.profile
+
 #=======================================================================================================================
 # settings
 
-declare LIBRARY_VERSION=470
-
-declare CONAN_USER=rgpaul
-declare CONAN_CHANNEL=stable
-
 declare TOOLCHAIN_VERSION=clang
 # please check the compiler version of your ndk before building f.e.:
-# /opt/android-ndks/android-ndk-r20/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ --version
+# /opt/android-ndks/android-ndk-r19c/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ --version
 declare COMPILER_VERSION=8.0
 declare COMPILER_LIBCXX=libc++
 declare STL_TYPE=c++_static
+declare ANDROID_NDK_PATH=$ANDROID_SDK_ROOT/ndk-bundle
+
+declare ARCH=$1
+declare API_LEVEL=$2
+declare BUILD_TYPE=$3
+
+echo "using NDK Path: ${ANDROID_NDK_PATH}"
+export ANDROID_NDK_PATH=${ANDROID_NDK_PATH}
 
 #=======================================================================================================================
 
@@ -112,10 +117,10 @@ function createConanPackage()
     local api_level=$2
     local build_type=$3
 
-    conan create . djinni/${LIBRARY_VERSION}@${CONAN_USER}/${CONAN_CHANNEL} -s os=Android \
+    conan create . ${CONAN_PACKAGE_NAME}/${LIBRARY_VERSION}@${CONAN_USER}/${CONAN_CHANNEL} -s os=Android \
         -s os.api_level=${api_level} -s compiler=${TOOLCHAIN_VERSION} -s compiler.version=${COMPILER_VERSION} \
         -s compiler.libcxx=${COMPILER_LIBCXX} -s build_type=${build_type} -o android_ndk=${NDK_VERSION} \
-        -o android_stl_type=${STL_TYPE} -s arch=${arch} -o shared=True
+        -o android_stl_type=${STL_TYPE} -s arch=${arch} -o shared=False
 }
 
 #=======================================================================================================================
@@ -124,11 +129,4 @@ function createConanPackage()
 getAndroidNdkVersion
 getCompilerVersion
 
-createConanPackage armv7 19 Release
-createConanPackage armv7 19 Debug
-createConanPackage armv8 21 Release
-createConanPackage armv8 21 Debug
-createConanPackage x86 19 Release
-createConanPackage x86 19 Debug
-createConanPackage x86_64 21 Release
-createConanPackage x86_64 21 Debug
+createConanPackage $ARCH $API_LEVEL $BUILD_TYPE

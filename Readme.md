@@ -1,6 +1,6 @@
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-![Android status](https://github.com/rgpaul/conan-curl-scripts/workflows/Android/badge.svg)
-![iOS status](https://github.com/rgpaul/conan-curl-scripts/workflows/iOS/badge.svg)
+![Android status](https://github.com/rgpaul/conan-djinni-scripts/workflows/Android/badge.svg)
+![iOS status](https://github.com/rgpaul/conan-djinni-scripts/workflows/iOS/badge.svg)
 
 # Conan djinni
 
