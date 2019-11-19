@@ -28,7 +28,7 @@ jobs:
       run: ${GITHUB_WORKSPACE}/.github/scripts/build-djinni-jar.sh
     - uses: actions/upload-artifact@master
       with:
-        name: djinni.jar
+        name: djinni_binary
         path: bin
 
   armv7-Release:
@@ -44,9 +44,8 @@ jobs:
         ref: ${{ github.sha }}
     - uses: actions/download-artifact@master
       with:
-        name: djinni.jar
-    - name: blubb
-      run: ls -l
+        name: djinni_binary
+        path: bin
     - name: get version from tag
       run: echo ::set-env name=LIBRARY_VERSION::$(echo ${GITHUB_REF:10})
     - name: install and setup conan
@@ -69,7 +68,8 @@ jobs:
         ref: ${{ github.sha }}
     - uses: actions/download-artifact@master
       with:
-        name: djinni.jar
+        name: djinni_binary
+        path: bin
     - name: get version from tag
       run: echo ::set-env name=LIBRARY_VERSION::$(echo ${GITHUB_REF:10})
     - name: install and setup conan
@@ -92,7 +92,8 @@ jobs:
         ref: ${{ github.sha }}
     - uses: actions/download-artifact@master
       with:
-        name: djinni.jar
+        name: djinni_binary
+        path: bin
     - name: get version from tag
       run: echo ::set-env name=LIBRARY_VERSION::$(echo ${GITHUB_REF:10})
     - name: install and setup conan
@@ -115,7 +116,8 @@ jobs:
         ref: ${{ github.sha }}
     - uses: actions/download-artifact@master
       with:
-        name: djinni.jar
+        name: djinni_binary
+        path: bin
     - name: get version from tag
       run: echo ::set-env name=LIBRARY_VERSION::$(echo ${GITHUB_REF:10})
     - name: install and setup conan
@@ -138,7 +140,8 @@ jobs:
         ref: ${{ github.sha }}
     - uses: actions/download-artifact@master
       with:
-        name: djinni.jar
+        name: djinni_binary
+        path: bin
     - name: get version from tag
       run: echo ::set-env name=LIBRARY_VERSION::$(echo ${GITHUB_REF:10})
     - name: install and setup conan
@@ -161,7 +164,8 @@ jobs:
         ref: ${{ github.sha }}
     - uses: actions/download-artifact@master
       with:
-        name: djinni.jar
+        name: djinni_binary
+        path: bin
     - name: get version from tag
       run: echo ::set-env name=LIBRARY_VERSION::$(echo ${GITHUB_REF:10})
     - name: install and setup conan
@@ -184,7 +188,8 @@ jobs:
         ref: ${{ github.sha }}
     - uses: actions/download-artifact@master
       with:
-        name: djinni.jar
+        name: djinni_binary
+        path: bin
     - name: get version from tag
       run: echo ::set-env name=LIBRARY_VERSION::$(echo ${GITHUB_REF:10})
     - name: install and setup conan
@@ -207,7 +212,8 @@ jobs:
         ref: ${{ github.sha }}
     - uses: actions/download-artifact@master
       with:
-        name: djinni.jar
+        name: djinni_binary
+        path: bin
     - name: get version from tag
       run: echo ::set-env name=LIBRARY_VERSION::$(echo ${GITHUB_REF:10})
     - name: install and setup conan

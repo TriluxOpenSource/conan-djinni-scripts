@@ -22,8 +22,14 @@ set -e
 
 declare ABSOLUTE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-mkdir ${ABSOLUTE_DIR}/bin
+mkdir ${ABSOLUTE_DIR}/../../bin
 cd djinni
 make djinni_jar
-cp src/target/scala-2.11/src-assembly-0.1-SNAPSHOT.jar ${ABSOLUTE_DIR}/bin/djinni.jar
-cd ${ABSOLUTE_DIR}
+
+echo "Done"
+echo "ls -lh src/target/"
+ls -lh src/target
+echo "ls -lh src/target/scala-2.11/"
+ls -lh src/target/scala-2.11
+
+cp src/target/scala-2.11/src-assembly-0.1-SNAPSHOT.jar ${ABSOLUTE_DIR}/../../bin/djinni.jar

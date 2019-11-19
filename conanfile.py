@@ -13,7 +13,7 @@ class DjinniConan(ConanFile):
     description = "A tool for generating cross-language type declarations and interface bindings."
     url = "https://github.com/RGPaul/conan-djinni-scripts"
     license = "Apache-2.0"
-    exports_sources = "cmake-modules/*", "djinni/*", "djinni.jar"
+    exports_sources = "cmake-modules/*", "djinni/*", "bin/djinni.jar"
 
     # compile using cmake
     def build(self):
@@ -93,7 +93,7 @@ class DjinniConan(ConanFile):
         self.copy("*.so", dst="lib", src='', keep_path=False)
         self.copy("*.dylib", dst="lib", src='', keep_path=False)
         self.copy("*.a", dst="lib", src='', keep_path=False)
-        self.copy("djinni.jar", dst="bin", src='', keep_path=False)
+        self.copy("djinni.jar", dst="bin", src='bin', keep_path=False)
         
     def package_info(self):
         self.cpp_info.libs = tools.collect_libs(self)
