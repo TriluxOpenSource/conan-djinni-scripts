@@ -2,7 +2,7 @@
 # ----------------------------------------------------------------------------------------------------------------------
 # The MIT License (MIT)
 #
-# Copyright (c) 2019 Ralph-Gordon Paul. All rights reserved.
+# Copyright (c) 2019-2020 Ralph-Gordon Paul. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
 # documentation files (the "Software"), to deal in the Software without restriction, including without limitation the 
@@ -19,7 +19,7 @@
 # ----------------------------------------------------------------------------------------------------------------------
 
 # login to conan bintray
-& conan user -p "${env:CONAN_PWD}" -r "${env:CONAN_REPOSITORY_NAME}" "${env:CONAN_USER}"
+& conan user -p "${env:CONAN_PWD}" -r "${env:CONAN_REPOSITORY_NAME}" "${env:CONAN_REPO_USER}"
 
 # upload all related packages
 & conan upload "${env:CONAN_PACKAGE_NAME}/${env:LIBRARY_VERSION}@${env:CONAN_USER}/${env:CONAN_CHANNEL}" `

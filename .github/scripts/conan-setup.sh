@@ -2,7 +2,7 @@
 # ----------------------------------------------------------------------------------------------------------------------
 # The MIT License (MIT)
 #
-# Copyright (c) 2018-2019 Ralph-Gordon Paul. All rights reserved.
+# Copyright (c) 2018-2020 Ralph-Gordon Paul. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
 # documentation files (the "Software"), to deal in the Software without restriction, including without limitation the 
@@ -43,4 +43,4 @@ conan remote add ${CONAN_REPOSITORY_NAME} ${CONAN_REPOSITORY}
 conan config install ${ABSOLUTE_DIR}/../conan/config.zip
 
 # login to conan
-conan user -p "${CONAN_PWD}" -r ${CONAN_REPOSITORY_NAME} ${CONAN_USER}
+conan user -p "${CONAN_PWD}" -r ${CONAN_REPOSITORY_NAME} ${CONAN_REPO_USER}

@@ -1,11 +1,12 @@
 name: iOS
 
 env:
-  CONAN_REPOSITORY: https://conan.rgpaul.com
-  CONAN_REPOSITORY_NAME: rgpaul
+  CONAN_REPOSITORY: https://api.bintray.com/conan/triluxitz/LiveLink_App
+  CONAN_REPOSITORY_NAME: trilux
   CONAN_PACKAGE_NAME: djinni
-  CONAN_USER: rgpaul
+  CONAN_USER: trilux
   CONAN_CHANNEL: stable
+  CONAN_REPO_USER: jenkins@triluxitz
 
 on:
   create:
@@ -18,10 +19,15 @@ jobs:
     env:
       GITHUB_OS_NAME: linux
     steps:
-    - uses: actions/checkout@master
+    - uses: actions/checkout@v2
       with:
-        submodules: true
         ref: ${{ github.sha }}
+    - name: checkout submodules
+      shell: bash
+      run: |
+        auth_header="$(git config --local --get http.https://github.com/.extraheader)"
+        git submodule sync --recursive
+        git -c "http.extraheader=$auth_header" -c protocol.version=2 submodule update --init --force --recursive
     - name: install scala
       run: ${GITHUB_WORKSPACE}/.github/scripts/scala-sbt-setup.sh
     - name: build djinni.jar
@@ -39,10 +45,15 @@ jobs:
       DEVELOPER_DIR: /Applications/Xcode_11.1.app/Contents/Developer
       CONAN_PWD: ${{ secrets.CONAN_PWD }}
     steps:
-    - uses: actions/checkout@master
+    - uses: actions/checkout@v2
       with:
-        submodules: true
         ref: ${{ github.sha }}
+    - name: checkout submodules
+      shell: bash
+      run: |
+        auth_header="$(git config --local --get http.https://github.com/.extraheader)"
+        git submodule sync --recursive
+        git -c "http.extraheader=$auth_header" -c protocol.version=2 submodule update --init --force --recursive
     - uses: actions/download-artifact@master
       with:
         name: djinni_binary
@@ -64,10 +75,15 @@ jobs:
       DEVELOPER_DIR: /Applications/Xcode_11.1.app/Contents/Developer
       CONAN_PWD: ${{ secrets.CONAN_PWD }}
     steps:
-    - uses: actions/checkout@master
+    - uses: actions/checkout@v2
       with:
-        submodules: true
         ref: ${{ github.sha }}
+    - name: checkout submodules
+      shell: bash
+      run: |
+        auth_header="$(git config --local --get http.https://github.com/.extraheader)"
+        git submodule sync --recursive
+        git -c "http.extraheader=$auth_header" -c protocol.version=2 submodule update --init --force --recursive
     - uses: actions/download-artifact@master
       with:
         name: djinni_binary
@@ -89,10 +105,15 @@ jobs:
       DEVELOPER_DIR: /Applications/Xcode_11.1.app/Contents/Developer
       CONAN_PWD: ${{ secrets.CONAN_PWD }}
     steps:
-    - uses: actions/checkout@master
+    - uses: actions/checkout@v2
       with:
-        submodules: true
         ref: ${{ github.sha }}
+    - name: checkout submodules
+      shell: bash
+      run: |
+        auth_header="$(git config --local --get http.https://github.com/.extraheader)"
+        git submodule sync --recursive
+        git -c "http.extraheader=$auth_header" -c protocol.version=2 submodule update --init --force --recursive
     - uses: actions/download-artifact@master
       with:
         name: djinni_binary
